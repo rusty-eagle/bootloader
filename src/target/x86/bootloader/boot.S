@@ -29,7 +29,7 @@ seta20_2:
 
 	; Now we switch from Real to Protected mode.
 	; We will use a bootstrap GDT that makes virtual addresses
-	; map directlry to physical addresses, so that the effective
+	; map directly to physical addresses, so that the effective
 	; memory map doesn't change during the transition.
 	lgdt	[gdtdesc]
 	mov	eax, cr0
@@ -57,30 +57,34 @@ start32:
 spin:
 	jmp spin
 
+%macro SEG_NULLASM 0
+	dd	0
+	dd	0
+%endmacro
+
+;; type, base, limit
+%macro SEG_ASM 3
+	dw	((%3 >> 12) & 0xffff)
+	dw	((%2) & 0xffff)
+	db	((%2 >> 16) & 0xff)
+	db	(0x90 | (%1))
+	db	(0xC0 | (((%3) >> 28) & 0xf))
+	db	(((%2) >> 24) & 0xff)
+%endmacro
+
 align 4
 STA_X equ 0x8 ; Executable segment
 STA_W equ 0x2 ; Writable (non-executable segments)
 STA_R equ 0x2 ; Readable (executable segments)
 gdt:
 	; Null segment
-	dd	0
-	dd	0
+	SEG_NULLASM
 
 	; Code segment
-	dw	(0xffffffff >> 12) & 0xffff
-	dw	0x0 & 0xffff
-	db	(0x0 >> 16) & 0xff
-	db	(0x90 | STA_X | STA_R)
-	db	(0xC0 | ((0xffffffff >> 28) & 0xf))
-	db	((0x0 >> 24) & 0xff)
+	SEG_ASM (STA_X|STA_R), 0x0, 0xffffffff
 
 	; Data segment
-	dw	(0xffffffff >> 12) & 0xffff
-	dw	0x0 & 0xffff
-	db	(0x0 >> 16) & 0xff
-	db	(0x90 | STA_W)
-	db	(0xC0 | ((0xffffffff >> 28) & 0xf))
-	db	((0x0 >> 24) & 0xff)
+	SEG_ASM STA_W, 0x0, 0xffffffff
 
 gdtdesc:
 	dw	gdtdesc - gdt - 1
