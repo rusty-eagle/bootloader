@@ -9,3 +9,17 @@ To build:
 ```
 make bootloader
 ```
+
+And you'll need to sign the bootloader after you build it.  I recommend this one:
+
+https://github.com/rusty-eagle/boot_loader_signer
+
+It requires Rust/Cargo.  You should be able to do something like this:
+
+```
+mkdir tmp
+cd tmp
+git clone --depth=1 https://github.com/rusty-eagle/boot_loader_signer
+cd boot_loader_signer
+cargo build
+```
