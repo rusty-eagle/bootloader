@@ -41,10 +41,10 @@ seta20_2:
 [bits 32]
 extern bootmain
 start32:
-	mov word	ax, 0x8
+	mov word	ax, 0x0010
 	mov word	ds, ax
 	mov word	es, ax
-	;mov	ss, ax ;; causes a fault :/
+	mov word	ss, ax
 	mov word	ax, 0
 	mov word	fs, ax
 	mov word	gs, ax
